@@ -1,0 +1,12 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+  - name: update repo index
+    dnf:
+      update_cache: yes
+  - name: dnf upgrade
+    dnf:
+      name: "*"
+      state: latest

@@ -1,0 +1,48 @@
+---
+- name: docker setup (on etcd hosts)
+  hosts: [etcds]
+  tasks:
+    - name: install plugins to add docker repo
+      dnf:
+        name: dnf-plugins-core
+        state: present
+    - name: enable docker repository
+      shell: "dnf config-manager --add-repo \
+        https://download.docker.com/linux/fedora/docker-ce.repo"
+    - name: reboot
+      reboot:
+    - name: update with new repo
+      dnf:
+        update_cache: yes
+        state: latest
+    - name: install neccesary packages
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+    - name: create docker group
+      group:
+        name: docker
+        state: present
+    - name: add $USER to docker group
+      user:
+        name: fedora
+        groups: docker,wheel
+        state: present
+    - name: set docker service to start on boot
+      systemd:
+        name: docker.service
+        state: started
+        enabled: yes
+    - name: set containerd service to start on boot
+      systemd:
+        name: containerd.service
+        state: started
+        enabled: yes
+    - name: reboot nodes (again)
+      reboot:
+    - name: run docker version to verify install and config
+      shell: 'docker version'
+...

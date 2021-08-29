@@ -1,10 +1,19 @@
 ---
 ## Playbook for creating mysql cluster
 - name: mysql docker cluster
+  # i tried to get etcd bare metal and docker to work with tls certs but couldnt figure out how>
+  # so here we are with mysql lmao
   hosts: [etcds]
   tasks:
-    - name: create docker network
-      shell: "docker network create mysqlcluster --subnet=172.17.11.0/16"
+    - name: Print all available facts (as deliberate gathering to prevent undefined errors late>
+      ansible.builtin.debug:
+        var: ansible_facts
+#    - name: create docker network
+#      shell: "docker network create mysqlcluster --subnet 172.27.17.0/16"
+    - name: install docker python libraries
+      shell: "pip3 install docker requests"
+      environment:
+        ansible_python_interpreter: "/usr/bin/python3"
     - name: setup cluster manager
       community.docker.docker_container:
         name: management1
@@ -12,19 +21,19 @@
         command: ["ndbd"]
         detach: yes
         networks:
-        - name: "{{ mysqlcluster }}"
-          ipv4_address: "172.17.11.2"
-      when: ansibe_default_ipv4.address=="192.168.3.22"
+        - name: "mysqlcluster"
+          ipv4_address: "172.27.17.2"
+      when: ansible_default_ipv4.address == "192.168.3.22"
     - name: setup first data node
       community.docker.docker_container:
         name: ndb1
         image: "mysql/mysql-cluster"
         command: ["ndbd"]
         detach: yes
-        networks: 
-        - name: "{{ mysqlcluster }}"
-          ipv4_address: "172.17.11.3"
-      when: ansible_default_ipv4.address=="192.168.3.23"
+        networks:
+        - name: "mysqlcluster"
+          ipv4_address: "172.27.17.3"
+      when: ansible_default_ipv4.address == "192.168.3.23"
     - name: setup second data node
       community.docker.docker_container:
         name: ndb2
@@ -32,9 +41,9 @@
         command: ["ndbd"]
         detach: yes
         networks:
-        - name: "{{ mysqlcluster }}"
-          ipv4_address: "172.17.11.4"
-      when: ansible_default_ipv4.address=="192.168.3.24"
+        - name: "mysqlcluster"
+          ipv4_address: "172.27.17.4"
+      when: ansible_default_ipv4.address == "192.168.3.24"
     - name: setup server container
       community.docker.docker_container:
         name: mysql1
@@ -44,14 +53,14 @@
         env:
             MYSQL_RANDOM_ROOT_PASSWORD: "true"
         networks:
-        - name: "{{ mysqlcluster }}"
-          ipv4_address: "172.17.11.5"
-      when: ansible_default_ipv4.address=="192.168.3.22"
-    - name: wait for arbitrary amount of time instead of dynamically responding to listening services
+        - name: "mysqlcluster"
+          ipv4_address: "172.27.17.5"
+      when: ansible_default_ipv4.address == "192.168.3.22"
+    - name: wait for arbitrary amount of time instead of dynamically responding to listening se>
       wait_for:
-        delay: 60
+        delay: 90
         timeout: 0
     - name: test by pulling default root password
-      when: ansible_default_ipv4.address=="192.168.3.22"
+      when: ansible_default_ipv4.address == "192.168.3.22"
       shell: "docker logs mysql1 2>&1 | grep PASSWORD"
 ...

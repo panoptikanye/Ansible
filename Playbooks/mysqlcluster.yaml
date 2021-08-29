@@ -8,8 +8,8 @@
     - name: Print all available facts (as deliberate gathering to prevent undefined errors late>
       ansible.builtin.debug:
         var: ansible_facts
-#    - name: create docker network
-#      shell: "docker network create mysqlcluster --subnet 172.27.17.0/16"
+    - name: create docker network
+      shell: "docker network create mysqlcluster --subnet 172.27.17.0/16"
     - name: install docker python libraries
       shell: "pip3 install docker requests"
       environment:

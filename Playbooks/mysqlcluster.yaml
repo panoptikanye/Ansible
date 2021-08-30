@@ -9,7 +9,8 @@
       ansible.builtin.debug:
         var: ansible_facts
     - name: create docker network
-      shell: "docker network create mysqlcluster --subnet 172.27.17.0/16"
+      shell: "docker network create -d overlay mysqlcluster --subnet 172.27.17.0/16"
+      when: ansible_default_ipv4.address == "192.168.3.22"
     - name: install docker python libraries
       shell: "pip3 install docker requests"
       environment:

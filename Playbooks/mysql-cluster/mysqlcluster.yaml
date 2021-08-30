@@ -45,9 +45,9 @@
         networks:
         - name: "mysqlcluster"
           ipv4_address: "172.27.17.2"
-      volumes:
-      - ~/mysql-cluster/mysql-cluster.cnf:/etc/mysql-cluster.cnf
-      - ~/mysql-cluster/my.cnf:/etc/mf.cnf
+        volumes:
+          - ~/mysql-cluster/mysql-cluster.cnf:/etc/mysql-cluster.cnf
+          - ~/mysql-cluster/my.cnf:/etc/my.cnf
       when: ansible_default_ipv4.address == "192.168.3.22"
     - name: setup first data node
       community.docker.docker_container:

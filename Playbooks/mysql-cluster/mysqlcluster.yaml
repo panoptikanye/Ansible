@@ -40,7 +40,7 @@
       community.docker.docker_container:
         name: management1
         image: "mysql/mysql-cluster"
-        command: ["ndbd"]
+        command: ["ndb_mgmd"]
         detach: yes
         networks:
         - name: "mysqlcluster"

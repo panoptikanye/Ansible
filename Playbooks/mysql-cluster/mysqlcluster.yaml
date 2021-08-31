@@ -13,13 +13,14 @@
       when: ansible_default_ipv4.address == "192.168.3.22"
     - name: fetch worker token from manager node
       fetch:
-        src: ~/worker.txt
+        src: worker.txt
         dest: ~/
+        flat: yes
       when: ansible_default_ipv4.address == "192.168.3.22"
     - name: copy token to db worker nodes
       copy:
-        src: ~/worker.txt
-        dest: /home/fedora
+        src: /home/fedora/worker.txt
+        dest: $PWD
       when: ansible_default_ipv4.address != "192.168.3.22"
     - name: workers join swarm
       shell: "export TOKEN=$(cat ~/worker.txt) && docker swarm join --token $TOKEN 192.168.3.22:2377"

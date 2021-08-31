@@ -51,7 +51,7 @@
       when: ansible_default_ipv4.address == "192.168.3.22"
     - name: wait arbitrary period for management node to initialize
       wait_for:
-        delay: 90
+        delay: 30
         timeout: 0
     - name: setup first data node
       community.docker.docker_container:
@@ -96,7 +96,7 @@
       when: ansible_default_ipv4.address == "192.168.3.22"
     - name: wait for arbitrary amount of time instead of dynamically responding to listening services
       wait_for:
-        delay: 90
+        delay: 30
         timeout: 0
     - name: test by pulling default root password
       when: ansible_default_ipv4.address == "192.168.3.22"

@@ -14,12 +14,12 @@
     - name: fetch worker token from manager node
       fetch:
         src: ~/worker.txt
-        dest: ~/worker.txt
+        dest: ~/
       when: ansible_default_ipv4.address == "192.168.3.22"
     - name: copy token to db worker nodes
       copy:
         src: ~/worker.txt
-        dest: ~/worker.txt
+        dest: /home/fedora
       when: ansible_default_ipv4.address != "192.168.3.22"
     - name: workers join swarm
       shell: "export TOKEN=$(cat ~/worker.txt) && docker swarm join --token $TOKEN 192.168.3.22:2377"
@@ -34,7 +34,7 @@
     - name: copy config directory to new directory of same name on EACH host
       copy:
         src: ~/mysql-cluster
-        dest: ~/
+        dest: /home/fedora
     - name: setup cluster manager
       community.docker.docker_container:
         name: management1

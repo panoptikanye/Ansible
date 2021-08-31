@@ -31,11 +31,10 @@
       shell: "pip3 install docker requests"
       environment:
         ansible_python_interpreter: "/usr/bin/python3"
-    - name: copy config directory to new directory of same name on mgmt host
+    - name: copy config directory to new directory of same name on EACH host
       copy:
         src: ~/mysql-cluster
         dest: ~/
-      when: ansible_default_ipv4.address == "192.168.3.22"
     - name: setup cluster manager
       community.docker.docker_container:
         name: management1

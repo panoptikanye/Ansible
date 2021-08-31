@@ -1,0 +1,19 @@
+---
+## Separate from and prior to main install to be run as su to avoid privelege errors
+- name: open ports on host firewalls
+  hosts: etcds
+  tasks:
+    - name: open tcp 2377
+      ansible.posix.firewalld:
+        state: enabled
+        port: 2377/tcp
+        permanent: yes
+        immediate: yes
+    - name: open tcp 1186
+      ansible.posix.firewalld:
+        state: enabled
+        port: 1186/tcp
+        permanent: yes
+        immediate: yes
+
+...

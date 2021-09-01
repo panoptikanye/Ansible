@@ -37,5 +37,10 @@
         port: 4789/udp
         permanent: yes
         immediate: yes
-
+# Reboot
+    - name: reboot
+      reboot:
+# Verify open ports
+    - name: list open ports
+      shell: "netstat -atu"
 ...

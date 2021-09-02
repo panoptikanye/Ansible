@@ -24,6 +24,20 @@
         port: 2202/tcp
         permanent: yes
         immediate: yes
+# MySQL (?)
+    - name: open tcp 3306
+      ansible.posix.firewalld:
+        state: enabled
+        port: 3306/tcp
+        permanent: yes
+        immediate: yes
+# MySQL (?)
+    - name: open tcp 33060
+      ansible.posix.firewalld:
+        state: enabled
+        port: 33060/tcp
+        permanent: yes
+        immediate: yes
 # node communication
     - name: open tcp 7946
       ansible.posix.firewalld:

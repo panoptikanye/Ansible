@@ -10,11 +10,18 @@
         port: 2377/tcp
         permanent: yes
         immediate: yes
-# 
+# MySQL Cluster management
     - name: open tcp 1186
       ansible.posix.firewalld:
         state: enabled
         port: 1186/tcp
+        permanent: yes
+        immediate: yes
+# MySQL Data ports
+    - name: open tcp 2202
+      ansible.posix.firewalld:
+        state: enabled
+        port: 2202/tcp
         permanent: yes
         immediate: yes
 # node communication

@@ -57,11 +57,8 @@
       community.docker.docker_container:
         name: ndb1
         image: "mysql/mysql-cluster"
-        command: ["ndbd"]
+        command: ["ndbd --network mysqlcluster --ip=172.27.17.3"]
         detach: yes
-        networks: 
-        - name: "mysqlcluster"
-          ipv4_address: "172.27.17.3"
         volumes:
           - ~/mysql-cluster/mysql-cluster.cnf:/etc/mysql-cluster.cnf
           - ~/mysql-cluster/my.cnf:/etc/my.cnf
@@ -70,11 +67,8 @@
       community.docker.docker_container:
         name: ndb2
         image: "mysql/mysql-cluster"
-        command: ["ndbd"]
+        command: ["ndbd --network mysqlcluster --ip=172.27.17.4"]
         detach: yes
-        networks:
-        - name: "mysqlcluster"
-          ipv4_address: "172.27.17.4"
         volumes:
           - ~/mysql-cluster/mysql-cluster.cnf:/etc/mysql-cluster.cnf
           - ~/mysql-cluster/my.cnf:/etc/my.cnf

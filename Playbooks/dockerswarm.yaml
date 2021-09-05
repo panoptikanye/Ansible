@@ -1,0 +1,32 @@
+---
+## Playbook for initializing docker swarm
+- name: docker swarm
+  hosts: [etcds]
+  tasks:
+    - name: Print all available facts (as deliberate gathering to prevent undef>
+      ansible.builtin.debug:
+        var: ansible_facts
+    - name: initialize docker swarm (to support container overlay network)
+      shell: "docker swarm init --advertise-addr 192.168.3.22 && docker swarm join-token -q worker >> worker.txt"
+      when: ansible_default_ipv4.address == "192.168.3.22"
+    - name: fetch worker token from manager node
+      fetch:
+        src: worker.txt
+        dest: ~/
+        flat: yes
+      when: ansible_default_ipv4.address == "192.168.3.22"
+    - name: copy token to db worker nodes
+      copy:
+        src: /home/fedora/worker.txt
+        dest: $PWD
+      when: ansible_default_ipv4.address != "192.168.3.22"
+    - name: workers join swarm
+      shell: "export TOKEN=$(cat ~/worker.txt) && docker swarm join --token $TOKEN 192.168.3.22:2377"
+      when: ansible_default_ipv4.address != "192.168.3.22"
+#    - name: create docker overlay network via swarm manager node
+#      shell: "docker network create -d overlay mysqlcluster --attachable --opt encrypted --subnet 172.27.17.0/16"
+#      when: ansible_default_ipv4.address == "192.168.3.22"
+    - name: test swarm
+      shell: "docker node ls"
+      when: ansibe_default_ipv4.address == 192.168.3.22
+...

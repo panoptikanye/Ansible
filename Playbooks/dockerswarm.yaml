@@ -29,5 +29,5 @@
 #      when: ansible_default_ipv4.address == "192.168.3.22"
     - name: test swarm
       shell: "docker node ls"
-      when: ansibe_default_ipv4.address == 192.168.3.22
+      when: ansible_default_ipv4.address == 192.168.3.22
 ...

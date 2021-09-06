@@ -9,6 +9,12 @@
         permanent: yes
         immediate: yes
         port: 3306/tcp
+    - name: open tcp port 2377 for docker swarm
+      ansible.posix.firewalld:
+        state: enabled
+        permanent: yes
+        immediate: yes
+        port: 2377/tcp
     - name: reboot
       reboot:
     - name: list open ports

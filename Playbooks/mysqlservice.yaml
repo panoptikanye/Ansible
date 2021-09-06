@@ -18,7 +18,7 @@
     - name: create service on manager node
       when: ansible_default_ipv4.address == "192.168.3.22"
       shell: "docker service create -d -p 3306:3306 --name mysqlservice \\\n
-              --mount type=bind,src=mysqlservice/data,dst=/var/lib/mysql \\\n
+              --mount type=bind,src=/home/fedora/mysqlservice/data,dst=/var/lib/mysql \\\n
               --network mysql --mode global --env MYSQL_RANDOM_ROOT_PASSWORD=yes \\\n
               --env MYSQL_USER=k3s --env MYSQL_PASSWORD=s3k3s --env MYSQL_DATABASE=k3s \\\n
               --env MYSQL_ROOT_PASSWORD=1234 mysql/mysql-server:latest"

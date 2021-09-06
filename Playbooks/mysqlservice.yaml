@@ -1,0 +1,33 @@
+---
+## Playbook for starting docker MySQL service (assumes existing docker swarm)
+- name: mysql docker service
+  hosts: [etcds]
+  tasks:
+    - name: Print all available facts (as deliberate gathering to prevent undefined errors)
+      ansible.builtin.debug:
+        var: ansible_facts
+    - name: create docker overlay network
+      shell: "docker network create -d overlay mysql --attachable --opt encrypted --subnet 172.27.17.0/16"
+      when: ansible_default_ipv4.address == 192.168.3.22
+    - name: copy config and data dir to each node
+      copy:
+        src: $PWD/mysqlservice
+        dest: ~/mysqlservice
+        directory_mode:
+    - name: create service on manager node
+      when: ansible_default_ipv4.address == 192.168.3.22
+      shell:
+        - "docker service create -d -p 3306:3306 --name mysqlservice \\\n
+#              --mount type=bind,src=~/mysqlservice/my.cnf,dst=/etc/my.cnf \\\n
+              --mount type=bind,src=~/mysqlservice/data,dst=/var/lib/mysql \\\n
+              --network mysql --mode global --env MYSQL_RANDOM_ROOT_PASSWORD=yes \\\n
+              --env MYSQL_USER=k3s --env MYSQL_PASSWORD=s3k3s --env MYSQL_DATABASE=k3s \\\n
+              --env MYSQL_ROOT_PASSWORD=1234 mysql/mysql-server:latest"
+    - name: wait 30s
+      wait_for:
+        delay: 30
+        timeout: 0
+    - name: list services
+      when: ansible_default_ipv4.address == 192.168.3.22
+      shell: "docker service ps mysqlservice"
+...

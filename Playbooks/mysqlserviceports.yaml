@@ -1,0 +1,16 @@
+---
+## separate from main install as su priveleges need here but not mysqlservice
+- name: open ports on host firewalls
+  hosts: etcds
+  tasks:
+    - name: open tcp port 3306 for access outside host
+      ansible.posix.firewalld:
+        state: enabled
+        permanent: yes
+        immediate: yes
+        port: 3306/tcp
+    - name: reboot
+      reboot:
+    - name: list open ports
+      shell: "netstat -atu"
+...

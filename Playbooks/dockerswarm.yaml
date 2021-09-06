@@ -1,5 +1,6 @@
 ---
 ## Playbook for initializing docker swarm
+## NOTE: !!! PORT 2377/TCP MUST ALREADY BE OPEN FOR WORKERS TO CONNECT TO HOST !!!
 - name: docker swarm
   hosts: [etcds]
   tasks:

@@ -1,0 +1,40 @@
+---
+# Ansible-playbook for creating the k3s control plane load balancer
+# Assumes ports 2377/tcp, 7946/tcp, and 4789/udp all open
+- name: k3sLB
+  hosts: lbs
+  tasks:
+    - name: Print all available facts (as deliberate gathering to prevent undefined error
+      ansible.builtin.debug:
+        var: ansible_facts
+    - name: initialize docker swarm
+      shell: "docker swarm init --advertise-addr 192.168.3.18 && docker swarm join-token -q worker >> worker.txt"
+      when: ansible_default_ipv4.address == "192.168.3.18"
+    - name: fetch worker token from manager node
+      fetch:
+        src: worker.txt
+        dest: ~/
+        flat: yes
+      when: ansible_default_ipv4.address == "192.168.3.18"
+    - name: copy token to db worker nodes
+      copy:
+        src: /home/fedora/worker.txt
+        dest: $PWD
+      when: ansible_default_ipv4.address != "192.168.3.18"
+    - name: workers join swarm
+      shell: "export TOKEN=$(cat ~/worker.txt) && docker swarm join --token $TOKEN 192.168.3.18:2377"
+      when: ansible_default_ipv4.address != "192.168.3.18"
+    - name: delete worker tokens
+      shell: "rm worker.txt"
+    - name: copy nginx.conf to docker swarm manager
+      copy:
+	src: ./nginx.conf
+        dest: ~/nginx/          
+    - name: start service
+      shell: "docker service create -d --name k3sLBservice \\\n
+              --mount type=bind,source=/home/fedora/nginx,target=/etc/nginx \\\n
+              --mode global \\\n
+              --publish published=6443,target=6443,mode=host \\\n
+              nginx:latest"
+      when: ansible_default_ipv4.address == "192.168.3.18"
+...

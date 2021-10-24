@@ -1,0 +1,28 @@
+---
+## separate from main install as su priveleges need here but not k3sLB.yaml
+- name: open ports on host firewalls
+  hosts: lbs
+  tasks:
+    - name: open tcp port 2377 for docker swarm
+      ansible.posix.firewalld:
+        state: enabled
+        permanent: yes
+        immediate: yes
+        port: 2377/tcp
+    - name: open tcp port 7946 for swarm networking
+      ansible.posix.firewalld:
+        state: enabled
+        permanent: yes
+        immediate: yes
+        port: 7946/tcp
+    - name: open udp port 4789 for swarm ingress
+      ansible.posix.firewalld:
+        state: enabled
+        permanent: yes
+        immediate: yes
+        port: 4789/udp
+    - name: reboot
+      reboot:
+    - name: list open ports
+      shell: "netstat -atu"
+...

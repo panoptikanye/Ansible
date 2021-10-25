@@ -1,0 +1,47 @@
+---
+# Ansible-playbook for deploying (3) k3s server-only nodes
+# !REMINDER! Verify creation of 'k3s' user on mysqlservice with password
+# ASSUMES CTLPLANE LOAD BALANCER / FIXED-REGISTRATION ADDRESS ALREADY CONFIGURED
+- hosts: servers
+  become: yes
+  tasks:
+  - name: Print all available facts (as deliberate gathering to prevent undefined error)
+    ansible.builtin.debug:
+      var: ansible_facts
+  - name: open port tcp 6443 for k3s cluster communication
+    ansible.posix.firewalld:
+      state: enabled
+      permanent: yes
+      immediate: yes
+      port: 6443/tcp
+  - name: open port udp	6443 for k3s cluster communication
+    ansible.posix.firewalld:
+      state: enabled
+      permanent: yes
+      immediate: yes
+      port: 6443/udp
+  - name: restart nodes
+    reboot:
+  - name: rancher's k3s install script
+    shell: "curl -sfL https://get.k3s.io | sh -s - server \\\n
+           --datastore-endpoint="mysql://k3s:s3k1012@tcp(192.168.3.22:3306)/k3s" \\\n
+           --node-taint CriticalAddonsOnly=true:NoExecute \\\n
+           --tls-san 192.168.3.18"
+  - name: fetch kube-config from (any) master
+    fetch:
+      src: /etc/rancher/k3s/k3s.yaml
+      dest: ~/
+      flat: yes
+      when: ansible_default_ipv4.address == "192.168.3.12"
+# fetch the cluster token from the master to then use when starting workers
+  - name: fetch k3s token from (any) master
+    fetch:
+      src: /var/lib/rancher/k3s/server/node-token
+      dest: ~/
+      flat: yes
+      when: ansible_default_ipv4.address == "192.168.3.12"
+  - name: install kubectl on ansible controller
+    local_action: command "curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \\\n
+           && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \\\n
+           && kubectl version --client"
+...
